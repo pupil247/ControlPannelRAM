@@ -1,0 +1,148 @@
+<!-- views/pages/gestion.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page gestion panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>   
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <%if(rows[0].niveauDroit >= 3) {%>
+            </br>
+            <div class="jumbotron text-center">
+                <h4>Liste des utilisateurs</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Niveau</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Password</th>
+                        <th scope="col">texteAccueil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(var i=0; i < rowsTable.length; i++){%> 
+                            <tr>
+                                <th scope="row"><%=rowsTable[i].id%></th>
+                                <td><%=rowsTable[i].niveauDroit%></td>
+                                <td><%=rowsTable[i].login%></td>
+                                <td><%=rowsTable[i].password%></td>
+                                <td><%=rowsTable[i].texteAccueil%></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            
+            </br>
+            <div class="jumbotron text-center">
+                <h4>Modifier les utilisateurs</h4>
+                <% for(var i=0; i < rowsTable.length; i++){%> 
+                    <h5><%=rowsTable[i].login%></h5>
+                    <div class="jumbotron text-center">
+                        <div>
+                            <p>
+                                <label for="phrase">Phrase d'accueil de <%=rowsTable[i].login%>:</label>
+                                <input type="text" name="phrase<%=i%>" id="phrase<%=i%>">
+                            </p>
+                            <button class="changePhrase btn btn-primary" value="Sauver" name="<%= i %>">Sauver</button>
+                        </div>
+                        </br>
+                        <div>
+                            <div>
+                                <p>
+                                    <label for="password<%=i%>">Password de <%=rowsTable[i].login%>:</label>
+                                    <input type="text" name="password<%=i%>" id="password<%=i%>">
+                                </p>
+                                <button value="Sauver" class="changePassword btn btn-primary" id="changePassword" name="<%=i%>">Sauver</button>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+            <% } else {%>
+                <div class="jumbotron text-center">
+                    <h1>Page non autorisée</h1>
+                </div>
+            <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            
+
+            $('.changePhrase').each(function(){
+                $(this).click(function () {
+                    console.log("buttonclick");
+                    var no = parseInt($(this).attr('name'));
+                    var array = <%- JSON.stringify(rowsTable) %>;
+                    console.log(array.length);
+                    socket.emit('changePhrase', array[no].login + '/' + array[no].password + '/' + $('#phrase'+ no.toString()).val());
+                });
+            }); 
+            
+           
+            $('.changePassword').each(function(){
+                $(this).click(function () {
+                    console.log("buttonclick");
+                    var no = parseInt($(this).attr('name'));
+                    var array = <%- JSON.stringify(rowsTable) %>;
+                    console.log(array.length);
+                    socket.emit('changePassword', array[no].login + '/' + array[no].password + '/' + $('#password'+ no.toString()).val());
+                });
+            });  
+            $('#changePasswordUser').click(function() {
+                socket.emit('changePassword', '<%=rows[0].login%>/<%=rows[0].password%>/' + $('#passwordUser').val());    
+            });
+            $('#changePhraseUser').click(function() {
+                socket.emit('changePhrase', '<%=rows[0].login%>/<%=rows[0].password%>/' + $('#phraseUser').val());    
+            });
+            
+        </script>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('refreshPage', function(message) {
+                console.log("reload page");
+                window.location = window.location.href;
+            });
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+            //to prevent form resubmission
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+        </script>
+    </body>
+</html>

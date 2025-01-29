@@ -1,0 +1,58 @@
+<!-- views/pages/accueil.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page accueil panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>   
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <div class="jumbotron text-center">
+                <h1>Bienvenue sur mon site web</h1>
+                <h2>Controle du panneau RAM</h2>
+                <div class="text-center">
+                    <img src="https://soumissionsdomotique.ca/wp-content/uploads/2016/04/eclairage-maison-intelligente.jpg" class="rounded-circle" alt="marioLogo" title="mario logo">
+                </div> 
+            </div>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+        </script>
+    </body>
+
+</html>

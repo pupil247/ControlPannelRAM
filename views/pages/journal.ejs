@@ -1,0 +1,99 @@
+<!-- views/pages/journal.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page journal panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>  
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <%if(niveauDroit == "3") {%>
+            <div class="container py-4 bg-light text-center">
+                <h1>Journal</h1>    
+            </div>
+            <div class="container py-4 bg-light text-center">
+                <form action="/journal" method="post">
+                    <label>Date debut:</label>
+                    <input type="date" required id="dateBegin" name="dateBegin"></input>
+                    <label>Date fin:</label>
+                    <input type="date" id="dateEnd" name="dateEnd"></input>
+                    Trier par user:
+                    <input type="text" id="login" name="login"></input>
+                    <input type="submit" class="btn btn-primary" value="Trier"> 
+                </form>
+                
+            </div>
+            <div class="container py-4 bg-light text-center">
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">LogId</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">UserLogin</th>
+                        <th scope="col">ReqTime</th>
+                        <th scope="col">Info</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(var i=0; i < logData.length; i++){%> 
+                            <tr>
+                                <th scope="row"><%=logData[i].LogID%></th>
+                                <td><%=logData[i].Type%></td>
+                                <td><%=logData[i].UserLogin%></td>
+                                <td><%=logData[i].ReqTime%></td>
+                                <td><%=logData[i].Info%></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <% } else {%>
+                <div class="jumbotron text-center">
+                    <h1>Page non autorisée</h1>
+                </div>
+            <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+        </script>
+        
+    </body>
+</html>
+
+        

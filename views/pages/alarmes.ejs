@@ -1,0 +1,193 @@
+<!-- views/pages/accueil.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page alarmes panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>   
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") { %>
+                <h1>Alarmes</h1>
+                </br>
+                <div class="container py-4 bg-light">
+                    <h2>Balance</h2>
+                    </br>
+                    <div id="ackBalance">
+                        <label for="ackAlarmeBalance">Erreur de com balance</label>
+                        </br>
+                        <label for="commentaireBalance">Commentaire:</label>
+                        </br>
+                        <input type="text" id="commentaireBalance"></input>
+                        <button id ="ackAlarmeBalance" type="button" class="btn btn-primary">ACK</i></button>
+                    </div>
+                </div>
+                </br>
+                <div class="container py-4 bg-light">
+                    <h2>Power Meter</h2>
+                    </br>
+                    <div id="ackPowermeter">
+                        <label for="ackAlarmePowermeter">Erreur de com Power Meter</label>
+                        </br>
+                        <label for="commentairePowerMeter">Commentaire:</label>
+                        </br>
+                        <input type="text" id="commentairePowerMeter"></input>
+                        <button id ="ackAlarmePowermeter" type="button" class="btn btn-primary">ACK</button>
+                    </div>
+                </div> 
+                </br>
+                <div class="container py-4 bg-light">
+                    <h2>Petit Bassin</h2>
+
+                    <div id="ackNivMaxPB">
+                        <label for="ackAlarmeNivMaxPB">Niveau max PB atteint</label>
+                        </br>
+                        <label for="commentaireNivMaxPB">Commentaire:</label>
+                        </br>
+                        <input type="text" id="commentaireNivMaxPB"></input>
+                        <button id ="ackAlarmeNivMaxPB" type="button" class="btn btn-primary">ACK</button>
+                    </div> 
+                    </br>
+                    <div id="ackOvfPB">
+                        <label for="ackAlarmeOvfPB">OVERFLOW PETIT BASSIN</label>
+                        </br>
+                        <label for="commentaireOvfPB">Commentaire:</label>
+                        </br>
+                        <input type="text" id="commentaireOvfPB"></input>
+                        <button id ="ackAlarmeOvfPB" type="button" class="btn btn-primary">ACK</button>
+                    </div> 
+                </div>
+                </br>
+                <div class="container py-4 bg-light">
+                    <h2>Grand Bassin</h2> 
+                    </br>
+                    <div id="ackNivMaxGB">
+                        <label for="ackAlarmeNivMaxGB">Niveau max GB atteint</label>
+                        </br>
+                        <label for="commentaireNivMaxGB">Commentaire:</label>
+                        </br>
+                        <input type="text" id="commentaireNivMaxGB"></input>
+                        <button id ="ackAlarmeNivMaxGB" type="button" class="btn btn-primary">ACK</button>
+                    </div>
+                    </br>
+                    <div id="ackOvfGB">
+                        <label for="ackAlarmeOvfGB">OVERFLOW GRAND BASSIN</label>
+                        </br>
+                        <label for="commentaireOvfGB">Commentaire:</label>
+                        <input type="text" id="commentaireOvfGB"></input>
+                        </br>
+                        <button id ="ackAlarmeOvfGB" type="button" class="btn btn-primary">ACK</button>
+                    </div>
+                    
+                </div>  
+            </div>
+            <% } else {%>
+                <div class="jumbotron text-center">
+                    <h1>Page non autorisée</h1>
+                </div>
+            <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+    </body>
+
+</html>
+
+<script>
+    $(document).ready(function () {
+        
+        if("<%= alarmesActives.timeoutBalance %>" == "0")
+            $('#ackBalance').hide();  
+        if("<%= alarmesActives.timeoutPowermeter %>" == "0")
+            $('#ackPowermeter').hide();  
+        if("<%= alarmesActives.debordementPB %>" == "0")
+            $('#ackOvfPB').hide();  
+        if("<%= alarmesActives.debordementGB %>" == "0")
+            $('#ackOvfGB').hide();  
+        if("<%= alarmesActives.limiteHautePB %>" == "0")
+            $('#ackNivMaxPB').hide();  
+        if("<%= alarmesActives.limiteHauteGB %>" == "0")
+            $('#ackNivMaxGB').hide();       
+    });
+    //reload page when change in listitem
+    var socket = io.connect('http://localhost:3000');
+    
+    socket.on('ALR_CNX_BAL', function(message) {
+        if(message == "ON")
+            $('#ackBalance').show(); 
+        else if(message == "ACK")
+            $('#ackBalance').hide();     
+    });
+
+    socket.on('ALR_CNX_POW', function(message) {
+        if(message == "ON")
+            $('#ackPowermeter').show(); 
+        else if(message == "ACK")
+            $('#ackPowermeter').hide();  
+    });
+
+    socket.on('ALR_GB_OVF', function(message) {
+        if(message == "ON")
+            $('#ackOvfGB').show();
+        else if(message == "ACK")
+            $('#ackOvfGB').hide(); 
+    });
+
+    socket.on('ALR_PB_OVF', function(message) {
+        if(message == "ON")
+            $('#ackOvfPB').show();
+        else if(message == "ACK")
+            $('#ackOvfPB').hide();  
+    });
+
+    socket.on('ALR_GB_NIV_MAX', function(message) {
+        if(message == "ON")
+            $('#ackNivMaxGB').show(); 
+        else if(message == "ACK")
+            $('#ackNivMaxGB').hide(); 
+    });
+
+    socket.on('ALR_PB_NIV_MAX', function(message) {
+        if(message == "ON")
+            $('#ackNivMaxPB').show();
+        else if(message == "ACK")
+            $('#ackNivMaxPB').hide(); 
+    });
+
+    $('#ackAlarmeBalance').on('click', function() {
+        $('#ackBalance').hide();  
+        socket.emit("ackAlarme","balance/"+ $('#commentaireBnpalance').val() + "/<%=login%>");
+    });
+    $('#ackAlarmePowermeter').on('click', function() {
+        $('#ackPowermeter').hide();  
+        socket.emit("ackAlarme","powermeter/" + $('#commentairePowerMeter').val() + "/<%=login%>");
+    });
+    $('#ackAlarmeOvfGB').on('click', function() {
+        $('#ackOvfGB').hide();  
+        socket.emit("ackAlarme","debordementGrandBassin/" + $('#commentaireOvfGB').val() + "/<%=login%>");
+    });
+    $('#ackAlarmeOvfPB').on('click', function() {
+        $('#ackOvfPB').hide();  
+        socket.emit("ackAlarme","debordementPetitBassin/" + $('#commentaireOvfPB').val() + "/<%=login%>");
+    });
+    $('#ackAlarmeNivMaxPB').on('click', function() {
+        $('#ackNivMaxPB').hide();  
+        socket.emit("ackAlarme","limiteHautePB/" + $('#commentaireNivMaxPB').val() + "/<%=login%>");
+    });
+    $('#ackAlarmeNivMaxGB').on('click', function() {
+        $('#ackNivMaxGB').hide();  
+        socket.emit("ackAlarme","limiteHauteGB/" + $('#commentaireNivMaxGB').val() + "/<%=login%>");
+    });
+    
+   
+</script>

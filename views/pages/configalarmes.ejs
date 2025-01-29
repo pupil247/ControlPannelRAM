@@ -1,0 +1,171 @@
+<!-- views/pages/configalarmes.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page config alarmes panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>  
+        </header>
+        <main>
+            </br>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+                <% if (niveauDroit != "0" && niveauDroit != "1") { %>
+                    <div class="jumbotron">
+                        <h4>Configuration des alarmes</h4>
+                        <form>
+                            <h5>Limite Haute Grand Bassin</h5>
+                            <label id="limiteGBlabel" for="ctrlLimiteGB" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlLimiteGB">
+                            </br>
+                            <button id ="submitLhGB" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form> 
+                        </br>
+                        <form>
+                            <h5>Temps Génération Grand Bassin(sec)</h5>
+                            <input type="number" id="tgGB">
+                            </br></br>
+                            <button id ="submitTgGb" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        </br>
+                        <form>
+                            <h5>Temps Régeneration Grand Bassin(sec)</h5>
+                            <input type="number" id="trGB">
+                            </br></br>
+                            <button id ="submitTrGb" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        </br>
+                        <form>
+                            <h5>Niveau Limite Haute Petit Bassin</h5>
+                            <label id="limitePBlabel" for="ctrlLimitePB" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlLimitePB">
+                            </br>
+                            <button id ="submitLhPB" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        </br>
+                        <form>
+                            <h5>Temps Génération Petit Bassin(sec)</h5>
+                            <input type="number" id="tgPB">
+                            </br></br>
+                            <button id ="submitTgPb" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        </br>
+                        <form>
+                            <h5>Temps Régeneration Petit Bassin(sec)</h5>
+                            <input type="number" id="trPB">
+                            </br></br>
+                            <button id ="submitTrPb" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        </br>
+                    </div>
+                    
+                <% } else {%>
+                    <div class="jumbotron text-center">
+                        <h1>Page non autorisée</h1>
+                    </div>
+                <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            }); 
+            $(document).ready(function () {
+                $('#submitTgGb').prop('disabled',true);
+                $('#submitTrGb').prop('disabled',true);
+                $('#submitTgPb').prop('disabled',true);
+                $('#submitTrPb').prop('disabled',true);
+                $('#submitLhGB').prop('disabled',true);
+                $('#submitLhPB').prop('disabled',true);
+
+                $('#ctrlLimitePB').on('input', function() {
+                    $('#limitePBlabel').text($(this).val() + "%"); 
+                    $('#submitLhPB').prop('disabled',false);
+
+                });
+                $('#submitLhPB').on('click', function() {
+                    $('#submitLhPB').prop('disabled',true); 
+                    socket.emit("consigneAlarme","limiteHautePetitBassin/" + $('#ctrlLimitePB').val() + "/" + "<%=login%>");  
+                });
+                $('#ctrlLimiteGB').on('input', function() {
+                    $('#limiteGBlabel').text($(this).val() + "%"); 
+                    $('#submitLhGB').prop('disabled',false);   
+                });
+                $('#submitLhGB').on('click', function() {
+                    $('#submitLhGB').prop('disabled',true); 
+                    console.log("oula");
+                    console.log("limiteHauteGrandBassin/" + $('#ctrlLimiteGB').val() + "<%=login%>");
+                    console.log("<%=login%>"); 
+                    socket.emit("consigneAlarme","limiteHauteGrandBassin/" + $('#ctrlLimiteGB').val() + "/" + "<%=login%>");   
+                });
+
+                $('#tgPB').on('input', function() {
+                    console.log("hahaha");
+                    $('#submitTgPb').prop('disabled',false);   
+                });
+                $('#trPB').on('input', function() {
+                    $('#submitTrPb').prop('disabled',false);   
+                });
+
+                $('#tgGB').on('input', function() {
+                    $('#submitTgGb').prop('disabled',false);   
+                });
+                $('#trGB').on('input', function() {
+                    $('#submitTrGb').prop('disabled',false);   
+                });
+
+                $('#submitTgPb').on('click', function() {
+                    $('#submitTgPb').prop('disabled',true);
+                    socket.emit("consigneAlarme","tempsGenPetitBassin/" + $('#tgPB').val() + "/" + "<%=login%>");   
+                });
+                $('#submitTgGb').on('click', function() {
+                    $('#submitTgGb').prop('disabled',true);  
+                    socket.emit("consigneAlarme","tempsGenGrandBassin/" + $('#tgGB').val() + "/" + "<%=login%>"); 
+                });
+                $('#submitTrPb').on('click', function() {
+                    $('#submitTrPb').prop('disabled',true);  
+                    socket.emit("consigneAlarme","tempsRegenPetitBassin/" + $('#trPB').val() + "/" + "<%=login%>"); 
+                });
+                $('#submitTrGb').on('click', function() {
+                    $('#submitTrGb').prop('disabled',true);   
+                    socket.emit("consigneAlarme","tempsRegenGrandBassin/" + $('#trGB').val() + "/" + "<%=login%>");
+                });
+            
+            });
+
+            
+        </script>
+
+    </body>
+
+</html>

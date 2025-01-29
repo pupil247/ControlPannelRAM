@@ -1,0 +1,443 @@
+<!-- views/pages/panneau.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page controle panneau du panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>  
+        </header>
+        <main>
+            </br>
+        
+        
+                    <h4>Niveaux Bassins</h4>
+                    <div class="d-flex align-items-start flex-column" style="height: 500px;">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm">
+                                    <div class="barcontainer1">
+                                        <div class="progress-label" id="lbNivGB">0%</div>
+                                        <div class="bar" id="nivGB" style="height:0%">
+                                        </div>
+                                    </div>
+                                    <div class="barcontainer2">
+                                        <div class="progress-label" id="lbNivPB">0%</div>
+                                        <div class="bar" id="nivPB" style="height:0%">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-sm">
+                                    <h5>Temp PB(oC)</h5>
+                                    <div id="gaugeTempPB" class="p-2" style="width:160px; height:120px"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <h5>Valves</h5>
+                                    <div id="gaugeValveGB" class="p-2" style="width:160px; height:120px"></div>
+                                    <label for="gaugeValveGB">valve GB</label>
+                                    <div id="gaugeValvePB" class="p-2" style="width:160px; height:120px"></div>
+                                    <label for="gaugeValvePB">valve PB</label>
+                                    <div id="gaugeValveEC" class="p-2" style="width:160px; height:120px"></div>
+                                    <label for="gaugeValveEC">valve EC</label>
+                                    <div id="gaugeValveEF" class="p-2" style="width:160px; height:120px"></div>
+                                    <label for="gaugeValveEF">valve EF</label>    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        </br>
+                        
+                    </div>
+
+                <% if (niveauDroit != "0" && niveauDroit != "1") { %>
+                    <!--popover alarme-->    
+                    <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Alerte alarmes</h5>
+                            </div>
+                            <div class="modal-body">
+                                <p id ="textModal"></p>
+                            </div> 
+                            </br>
+                            </br>
+                            <p>Cliquer à côté pour désactiver</p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="d-flex align-items-start flex-column">
+                        <h4>Mode de controle</h4>  
+                        <!-- Mode controle switch -->
+                        <div id="ctrlMode" class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" role="switch" id="switchMode">
+                            <label class="form-check-label" for="customSwitches" id="switchModeLabel">Manuel</label>
+                        </div>
+                    </div>
+
+                    <div class="jumbotron">
+                        <h4>Controle des valves</h4>
+                        <form>
+                            <h5>Valve Petit Bassin</h5>
+                            <label id="valvePBlabel" for="ctrlValvePB" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlValvePB">
+                            </br>
+                            <button id ="submitValvesPB" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form> 
+                        <form>
+                            <h5>Valve Grand Bassin</h5>
+                            <label id="valveGBlabel" for="ctrlValveGB" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlValveGB">
+                            </br>
+                            <button id ="submitValvesGB" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form>
+                            <h5>Valve eau chaude</h5>
+                            <label id="valveEClabel" for="ctrlValveEC" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlValveEC">
+                            </br>   
+                            <button id ="submitValvesEC" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form>
+                            <h5>Valve eau froide</h5>
+                            <label id="valveEFlabel" for="ctrlValveEF" class="form-label">0%</label>
+                            <input type="range" class="form-range valvesCtrl" id="ctrlValveEF">
+                            </br>
+                            <button id ="submitValvesEF" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form>
+                            <!-- Valve EEC switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input valvesCtrl" type="checkbox" id="submitValvesEEC">
+                                <label class="form-check-label" for="submitValvesEEC">Valve EEC</label>
+                            </div>
+                        </form>    
+                        <form>
+                            <!-- Valve EEF switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input valvesCtrl" type="checkbox" id="submitValvesEEF">
+                                <label class="form-check-label" for="submitValvesEEF">Valve EEF</label>
+                            </div>
+                        </form>    
+                        </br>
+                    </div>
+
+   
+                    </br>
+                    <div>
+                        <form>
+                            <h5>Niveau grand bassin</h5>
+                            <label id="ctrlNivGBlabel" for="ctrlNivGB" class="form-label">0%</label>
+                            <input type="range" class="form-range bassinsCtrlAuto" id="ctrlNivGB">
+                            <button id ="submitGBassin" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form>
+                            <h5>Niveau petit bassin</h5>
+                            <label id="ctrlNivPBlabel" for="ctrlNivPB" class="form-label">0%</label>
+                            <input type="range" class="form-range bassinsCtrlAuto" id="ctrlNivPB">
+                            <button id ="submitPBassin" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form>
+                            <h5>Temp petit bassin</h5>
+                            <label id="ctrlTempPBlabel" for="ctrlTempPB" class="form-label">0%</label>
+                            <input type="range" class="form-range bassinsCtrlAuto" id="ctrlTempPB">
+                            <button id ="submitTempPBassin" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                        </form>
+                    </div>
+                    </br>
+                    <div class="jumbotron">
+                        <form>
+                            <h1>Moteur Pompe</h1>  
+                            <!-- Moteur switch -->
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" role="switch" id="switchMoteur">
+                                <label class="form-check-label" for="customSwitches" id="switchMoteur">Allumer ou Eteindre le Moteur</label>
+                            </div>
+                        </form>
+                    </div>
+                    
+                <% } %>
+
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var gaugeTempPB = new JustGage({
+                id: "gaugeTempPB",
+                value: <%=infosPanneau.tempPB%>,
+                min: 0,
+                max: 100,
+                title: "tempPB",  
+            });
+            var gaugeValveGB = new JustGage({
+                id: "gaugeValveGB",
+                value: <%=infosPanneau.valveGB%>,
+                min: 0,
+                max: 100,
+                title: "PB",  
+            });
+            var gaugeValvePB = new JustGage({
+                id: "gaugeValvePB",
+                value: <%=infosPanneau.valvePB%>,
+                min: 0,
+                max: 100,
+                title: "PB",  
+            });
+            var gaugeValveEC = new JustGage({
+                id: "gaugeValveEC",
+                value: <%=infosPanneau.valveEC%>,
+                min: 0,
+                max: 100,
+                title: "PB",  
+            });
+            var gaugeValveEF = new JustGage({
+                id: "gaugeValveEF",
+                value: <%=infosPanneau.valveEF%>,
+                min: 0,
+                max: 100,
+                title: "PB",  
+            });
+            
+        </script>
+        <script>
+            //reload page when change in listitem
+            var socket = io.connect('http://localhost:3000');
+
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+            socket.on('ValveEEC', function(message) {
+                console.log(message);
+                if(message == "on")
+                    $('#submitValvesEEC').prop("checked", true);
+                else if(message == "off")
+                    $('#submitValvesEEC').prop("checked", false);
+                   
+            });
+            socket.on('ValveEEF', function(message) {
+                console.log(message);
+                if(message == "on")
+                    $('#submitValvesEEF').prop("checked", true);
+                else if(message == "off")
+                    $('#submitValvesEEF').prop("checked", false);    
+            });
+            socket.on('mode', function(message) {
+                console.log(message);
+                if (message == "auto" && !($('#switchMode').is(':checked'))) {
+                    $('#switchMode').click();
+                    
+                } else if(message == "manuel" && ($('#switchMode').is(':checked'))){
+                    $('#switchMode').click();
+                }  
+            });
+            socket.on('ValveEC', function(message) {
+                gaugeValveEC.refresh(parseFloat(message));
+            });
+            socket.on('ValveEF', function(message) {
+                gaugeValveEF.refresh(parseFloat(message));
+            });
+            socket.on('ValveGB', function(message) {
+                gaugeValveGB.refresh(parseFloat(message));
+            });
+            socket.on('ValvePB', function(message) {
+                gaugeValvePB.refresh(parseFloat(message));
+            });
+
+            socket.on('TmpPB', function(message) {
+                gaugeTempPB.refresh(parseFloat(message));
+            });
+
+            socket.on('Pompe', function(message) {
+                if(message == "on")
+                    $('#switchMoteur').prop("checked", true);
+                else if(message == "off")
+                    $('#switchMoteur').prop("checked", false); 
+            });
+
+            socket.on('NivPB', function(message) {
+                $("#nivPB").css("height", message + "%");
+                $("#lbNivPB").text(message + "%");
+            });
+
+            socket.on('NivGB', function(message) {
+                $("#nivGB").css("height", message + "%");
+                $("#lbNivGB").text(message + "%");
+            });
+
+            $(document).ready(function () {
+                $('#switchModeLabel').text('Manuel');
+                $('.valvesCtrl').prop('disabled',false); 
+                $('#submitValvesPB').prop('disabled',false);
+                $('#submitValvesGB').prop('disabled',false); 
+                $('#submitValvesEC').prop('disabled',false); 
+                $('#submitValvesEF').prop('disabled',false);  
+                $('.bassinsCtrlAuto').prop('disabled',true);
+                $('#submitPBassin').prop('disabled',true); 
+                $('#submitGBassin').prop('disabled',true); 
+                $('#submitTempPBassin').prop('disabled',true); 
+                
+                gaugeValveEC.refresh(parseFloat(<%=infosPanneau.valveEC%>));
+                gaugeValveEF.refresh(parseFloat(<%=infosPanneau.valveEF%>));
+                gaugeValveGB.refresh(parseFloat(<%=infosPanneau.valveGB%>));
+                gaugeValvePB.refresh(parseFloat(<%=infosPanneau.valvePB%>));
+                gaugeTempPB.refresh(parseFloat(<%=infosPanneau.tempPB%>));
+                if("<%=infosPanneau.mode%>" == "auto")
+                    $('#switchMode').click();
+                if("<%=infosPanneau.valveEEC%>" == "on")    
+                    $('#submitValvesEEC').prop("checked", true);
+                if("<%=infosPanneau.valveEEF%>" == "on")    
+                    $('#submitValvesEEF').prop("checked", true);
+                if("<%=infosPanneau.pompe%>" == "on")    
+                    $('#switchMoteur').prop("checked", true);
+            });
+            $('#ctrlNivPB').on('input', function() {
+                $('#ctrlNivPBlabel').text($(this).val() + "%");
+                $('#submitPBassin').prop('disabled',false);     
+            });
+            $('#ctrlNivGB').on('input', function() {
+                $('#ctrlNivGBlabel').text($(this).val() + "%");
+                $('#submitGBassin').prop('disabled',false);     
+            });
+            $('#ctrlTempPB').on('input', function() {
+                $('#ctrlTempPBlabel').text($(this).val() + "%");
+                $('#submitTempPBassin').prop('disabled',false);     
+            });
+            $('#ctrlValveEC').on('input', function() {
+                $('#valveEClabel').text($(this).val() + "%");
+                $('#submitValvesEC').prop('disabled',false); 
+            });
+            $('#ctrlValveEF').on('input', function() {
+                $('#valveEFlabel').text($(this).val() + "%");
+                $('#submitValvesEF').prop('disabled',false);     
+            });
+            $('#ctrlValveGB').on('input', function() {
+                $('#valveGBlabel').text($(this).val() + "%");
+                $('#submitValvesGB').prop('disabled',false);     
+            });
+            $('#ctrlValvePB').on('input', function() {
+                $('#valvePBlabel').text($(this).val() + "%");  
+                $('#submitValvesPB').prop('disabled',false);   
+            });
+            $('#ctrlValveTemp').on('input', function() {
+                $('#valvePBlabel').text($(this).val() + "%");  
+                $('#submitTempPB').prop('disabled',false);   
+            });
+
+            $('#submitPBassin').on('click', function() {
+                $('#submitPBassin').prop('disabled',true);   
+                socket.emit("consignePanneau","consigneNivPB/" + $('#ctrlNivPB').val()+ "/<%=login%>");    
+            });
+            $('#submitGBassin').on('click', function() {
+                $('#submitGBassin').prop('disabled',true);   
+                socket.emit("consignePanneau","consigneNivGB/" + $('#ctrlNivGB').val()+ "/<%=login%>");      
+            });
+            $('#submitValvesPB').on('click', function() {
+                $('#submitValvesPB').prop('disabled',true);  
+                socket.emit("consignePanneau","consigneValvePB/" + $('#ctrlValvePB').val()+ "/<%=login%>");   
+            });
+            $('#submitValvesGB').on('click', function() {
+                $('#submitValvesGB').prop('disabled',true); 
+                socket.emit("consignePanneau","consigneValveGB/" + $('#ctrlValveGB').val()+ "/<%=login%>");    
+            });
+            $('#submitValvesEC').on('click', function() {
+                $('#submitValvesEC').prop('disabled',true); 
+                socket.emit("consignePanneau","consigneValveEC/" + $('#ctrlValveEC').val()+ "/<%=login%>");    
+            });
+            $('#submitValvesEF').on('click', function() {
+                $('#submitValvesEF').prop('disabled',true);  
+                socket.emit("consignePanneau","consigneValveEF/" + $('#ctrlValveEF').val() + "/<%=login%>");   
+            });
+            $('#submitValvesEEC').on('click',function(){
+                if($('#submitValvesEEC').is(":checked")){
+                    socket.emit("consignePanneau","consigneValveEEC/" + "on"+ "/<%=login%>");     
+                }   
+                else
+                    socket.emit("consignePanneau","consigneValveEEC/" + "off"+ "/<%=login%>");      
+            });
+            $('#submitValvesEEF').on('click',function(){
+                if($('#submitValvesEEF').is(":checked")){
+                    socket.emit("consignePanneau","consigneValveEEF/" + "on"+ "/<%=login%>");     
+                }   
+                else
+                    socket.emit("consignePanneau","consigneValveEEF/" + "off"+ "/<%=login%>");      
+            });
+            $('#switchMoteur').on('click',function(){
+                if($('#switchMoteur').is(":checked")){
+                    socket.emit("consignePanneau","consignePompe/" + "on"+ "/<%=login%>");     
+                }   
+                else
+                    socket.emit("consignePanneau","consignePompe/" + "off"+ "/<%=login%>");      
+            });
+            $('#submitTempPBassin').on('click',function(){
+                $('#submitTempPBassin').prop('disabled',true); 
+                socket.emit("consignePanneau","consigneTmpPB/" + $('#ctrlTempPB').val()+ "/<%=login%>");
+            });
+            
+            $('#switchMode').on('click', function() {
+                if($('#switchMode').is(":checked")){
+                    $('#switchModeLabel').text('Auto'); 
+                    $('.valvesCtrl').prop('disabled',true); 
+                    $('#submitValvesPB').prop('disabled',true);
+                    $('#submitValvesGB').prop('disabled',true); 
+                    $('#submitValvesEC').prop('disabled',true); 
+                    $('#submitValvesEF').prop('disabled',true); 
+                    $('.bassinsCtrlAuto').prop('disabled',false);
+                    $('#submitGBassin').prop('disabled',false); 
+                    $('#submitPBassin').prop('disabled',false);
+                    $('#submitTempPBassin').prop('disabled',false);
+                    socket.emit("consignePanneau","mode/" + "auto"+ "/<%=login%>"); 
+                }
+                else{
+                    $('#switchModeLabel').text('Manuel');
+                    $('.valvesCtrl').prop('disabled',false); 
+                    $('#submitValvesPB').prop('disabled',false);
+                    $('#submitValvesGB').prop('disabled',false); 
+                    $('#submitValvesEC').prop('disabled',false); 
+                    $('#submitValvesEF').prop('disabled',false); 
+                    $('.bassinsCtrlAuto').prop('disabled',true);
+                    $('#submitGBassin').prop('disabled',true); 
+                    $('#submitPBassin').prop('disabled',true); 
+                    $('#submitTempPBassin').prop('disabled',true);
+                    $('#submitTempPBassin').prop('disabled',true);
+                    socket.emit("consignePanneau","mode/" + "manuel"+ "/<%=login%>"); 
+                }
+            });
+        </script>
+        <script>
+            // Function to update the water level based on a percentage
+            function updateWaterLevel(percentage) {
+              if (percentage < 0) {
+                percentage = 0;
+              } else if (percentage > 100) {
+                percentage = 100;
+              }
+          
+              const waterLevel = document.getElementById('waterLevel');
+              waterLevel.style.height = percentage + '%';
+            }
+          
+            // Example: Animate the water level to 75% after a delay
+            setTimeout(() => {
+              updateWaterLevel(75);
+            }, 1000); // Delay in milliseconds
+          </script>
+
+
+
+          
+    </body>
+
+</html>

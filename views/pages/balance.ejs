@@ -1,0 +1,220 @@
+<!-- views/pages/balance.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page balance panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>  
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <div class="jumbotron">
+                <h1>Balance</h1>  
+                <label for="gaugePoids">Poids:</label>
+                <div id="gaugePoids" class="200x160px"></div>
+                <label for="gaugeTare">Tare:</label>
+                <div id="gaugeTare" class="200x160px"></div>
+                <div>
+                    <h3 id="unit">Unit: <%=infosBalance.unit%></h3>
+                </div>
+                <div>
+                    <h3 id="erreur">Erreur: <%=infosBalance.erreur%></h3>
+                </div>
+            </div>
+            <% if (niveauDroit != "0") { %>
+            <div class="jumbotron">
+                <h1>Melangeur</h1>
+                <div class="row">
+                    <div class="col-sm">
+                    <form>
+                        <h5>Mode melangeur</h5>
+                        <input type="radio" id="modeManuel" name="modemelangeur">
+                        <label for="modeManuel">Manuel</label>
+                        <input type="radio" id="modeAuto" name="modemelangeur">
+                        <label for="modeAuto">Auto</label>
+                        </br></br> 
+                        <button id ="submitModeMelangeur" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                    </form> 
+                    </div>
+                    <div class="col-sm">
+                    <form>
+                        <h5>Choix du moteur</h5>
+                        <input type="radio" id="moteurA" name="moteurMelangeur">
+                        <label for="moteurA">MoteurA</label>
+                        <input type="radio" id="moteurB" name="moteurMelangeur">
+                        <label for="moteurB">MoteurB</label>
+                        <input type="radio" id="moteurC" name="moteurMelangeur">
+                        <label for="moteurC">MoteurC</label>
+                        </br> </br> 
+
+                        <input type="radio" id="marcheMoteur" name="marcheArretMoteur">
+                        <label for="marcheMoteur">Marche</label>
+                        <input type="radio" id="arretMoteur" name="marcheArretMoteur">
+                        <label for="arretMoteur">Arret</label>
+                        </br></br> 
+                        <button id ="submitMoteurMelangeur" type="button" class="btn btn-primary"><i class="fas fa-check"></i></button>
+                    </form> 
+                    </div>
+                    <div class="col-sm">
+                    </form>
+                    <form>
+                        <h5>Ajouter recette</h5>
+                        <label id="ingredientALabel" for="ingredientA" class="form-label">Ingredient A:</label>
+                        <input type="number" id="ingredientA">
+                        </br>  
+                        <label id="ingredientBLabel" for="ingredientB" class="form-label">Ingredient B:</label>
+                        <input type="number" id="ingredientB">
+                        </br> 
+                        <label id="ingredientCLabel" for="ingredientC" class="form-label">Ingredient C:</label>
+                        <input type="number" id="ingredientC">
+                        </br>  
+                        <button id ="submitDosage" type="button" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                        </br> </br>  
+                        <button id ="startRecette" type="button" class="btn btn-success">start recette</button>
+                        
+                        <button id ="stopRecette" type="button" class="btn btn-danger">stop recette</button>
+                         
+                        <button id ="flushRecette" type="button" class="btn btn-warning">flush recette</button>
+                    </form>
+                    </div>
+                </div>  
+            </div>
+            
+            <div class="jumbotron">
+                <h1>Shop-VAC</h1> 
+                <form>
+                    <button id ="arretUrgence" type="button" class="btn btn-danger">ARRET URGENCE</button>
+                </form>
+            </div>
+            <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var gaugePoids = new JustGage({
+                id: "gaugePoids",
+                value: <%=infosBalance.poids%>,
+                min: 0,
+                max: 500,
+                title: "Poids",  
+                decimals: 2,
+            });
+            var gaugeTare = new JustGage({
+                id: "gaugeTare",
+                value: <%=infosBalance.tare%>,
+                min: 0,
+                max: 500,
+                title: "Tare",  
+                decimals: 2,
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#marcheMoteur').prop("checked", true);
+                $("#moteurA").prop("checked", true);
+                $('#modeManuel').prop("checked", true);
+                $('#flushRecette').prop("disabled",true);
+                $('#stopRecette').prop("disabled",true);
+            });
+            //reload page when change in listitem
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+            socket.on('poids', function(message) {
+                gaugePoids.refresh(parseFloat(message));
+            });
+            socket.on('tare', function(message) {
+                gaugeTare.refresh(parseFloat(message));
+            });
+            socket.on('unit', function(message) {
+                $("#unit").text(message);
+            });
+            socket.on('erreur', function(message) {
+                $("#erreur").text(message);
+            });
+
+            $('#startRecette').on('click', function() {
+                $("#stopRecette").prop("disabled",false);    
+                $('#flushRecette').prop("disabled",true);
+                socket.emit("consigneMelangeur", "consigneRecetteGo/start/<%=login%>");
+            });
+            $('#stopRecette').on('click', function() {
+                $("#stopRecette").prop("disabled",true);    
+                $('#flushRecette').prop("disabled",false);
+                socket.emit("consigneMelangeur", "consigneRecetteGo/stop/<%=login%>");
+            });
+            $('#flushRecette').on('click', function() {
+                $('#flushRecette').prop("disabled",true);
+                socket.emit("consigneMelangeur", "consigneRecetteGo/flush/<%=login%>");
+            });
+            $('#submitMoteurMelangeur').on('click', function() {
+                var typeMoteur ="test";
+                var consigne="test";;
+                if($("#moteurA").is(':checked'))
+                    typeMoteur = "consigneMoteurA/";
+                else if($("#moteurB").is(':checked'))
+                    typeMoteur = "consigneMoteurB/";
+                else
+                    typeMoteur = "consigneMoteurC/";
+
+                if($('#marcheMoteur').is(':checked'))
+                    consigne = "on";    
+                else
+                    consigne = "off";
+                    console.log("reload page");
+                    
+                socket.emit("consigneMelangeur",typeMoteur + consigne + "/<%=login%>");        
+            });
+
+            $('#submitModeMelangeur').on('click', function() {
+                var val;
+                if($('#modeManuel').is(':checked'))
+                    val = "manuel";
+                else
+                    val = "auto";
+                socket.emit("consigneMelangeur","mode/" + val + "/<%=login%>");    
+            });
+
+            $('#submitDosage').on('click', function() {
+                socket.emit("consigneMelangeur","consigneRecette/" + $('#ingredientA').val() + "-" + $('#ingredientB').val() + "-" + $('#ingredientC').val() + "/<%=login%>");       
+            });
+
+
+            /*socket.on('refreshPage', function(message) {
+                console.log("reload page");
+                window.location = window.location.href;
+            });*/
+        </script>
+    </body>
+
+</html>

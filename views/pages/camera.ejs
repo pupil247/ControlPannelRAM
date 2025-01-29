@@ -1,0 +1,64 @@
+<!-- views/pages/camera.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page caméra du panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>   
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            <% if (niveauDroit != "0") { %>
+            <div class="jumbotron text-center">
+                <h1>Camera</h1>
+                </br>
+                <a href="http://172.17.15.110/">Lien vers la camera</a>
+                </br>
+                </br>
+            </div>
+            <% } else {%>
+                <div class="jumbotron text-center">
+                    <h1>Page non autorisée</h1>
+                </div>
+            <% }%>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+        </script>
+    </body>
+
+</html>

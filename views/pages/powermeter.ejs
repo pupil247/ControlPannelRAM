@@ -1,0 +1,166 @@
+<!-- views/pages/powermeter.ejs -->
+
+<!DOCTYPE html>
+<!---
+    FP 2023-12-20
+    Page powermeter du panneau RAM
+-->
+<html lang="fr">
+
+    <head>
+        <%- include('../partials/head') %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header') %>  
+        </header>
+        <main>
+            <% if (niveauDroit != "0" && niveauDroit != "1") {%>
+                <!--popover alarme-->    
+                <div class="modal" tabindex="-1" role="dialog" id="myModal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Alerte alarmes</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p id ="textModal"></p>
+                        </div> 
+                        </br>
+                        </br>
+                        <p>Cliquer à côté pour désactiver</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <div class="jumbotron">
+                <h1>Niveaux powermeter</h1>
+
+                <div class="d-flex align-items-start flex-column" style="height: 500px;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div id="gaugeVAB" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeVAB">VAB</label>
+                                <div id="gaugeVAN" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeVAN">VAN</label> 
+                                <div id="gaugeVBN" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeVBN">VBN</label>       
+                            </div>
+                            <div class="col-sm">
+                                <div id="gaugeIA" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeIA">IA</label> 
+                                <div id="gaugeIB" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeIB">IB</label>  
+                                <div id="gaugeFP" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeFP">FP</label> 
+                            </div>
+                            <div class="col-sm">
+                                <div id="gaugeKW" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeKW">KW</label>
+                                <div id="gaugeKWH" class="p-2" style="width:160px; height:120px"></div>
+                                <label for="gaugeKWH">KWH</label> 
+                            </div>           
+                        </div>
+                    </div> 
+                </div> 
+            </div>
+        </main>
+        <footer>
+            <%- include('../partials/footer') %>    
+        </footer>
+        <script>
+            
+            var gaugeFP = new JustGage({
+                id: "gaugeFP",
+                value: <%=infosPowerMeter.fp%>,
+                min: 0,
+                max: 100,
+                title: "FP",  
+            });
+            var gaugeIA = new JustGage({
+                id: "gaugeIA",
+                value: <%=infosPowerMeter.ia%>,
+                min: 0,
+                max: 100,
+                title: "IA",  
+            });
+            var gaugeIB = new JustGage({
+                id: "gaugeIB",
+                value: <%=infosPowerMeter.ib%>,
+                min: 0,
+                max: 100,
+                title: "IB",  
+            });
+            var gaugeKW = new JustGage({
+                id: "gaugeKW",
+                value: <%=infosPowerMeter.kw%>,
+                min: 0,
+                max: 100,
+                title: "KW",  
+            });
+            var gaugeKWH = new JustGage({
+                id: "gaugeKWH",
+                value: <%=infosPowerMeter.kwh%>,
+                min: 0,
+                max: 100,
+                title: "KWH",  
+            });
+            var gaugeVAB = new JustGage({
+                id: "gaugeVAB",
+                value: <%=infosPowerMeter.vab%>,
+                min: 0,
+                max: 100,
+                title: "vab",  
+            }); 
+            var gaugeVBN = new JustGage({
+                id: "gaugeVBN",
+                value: <%=infosPowerMeter.vbn%>,
+                min: 0,
+                max: 100,
+                title: "vbn",  
+            }); 
+            var gaugeVAN = new JustGage({
+                id: "gaugeVAN",
+                value: <%=infosPowerMeter.van%>,
+                min: 0,
+                max: 100,
+                title: "van",  
+            });     
+        </script>
+        <script>
+            var socket = io.connect('http://localhost:3000');
+            socket.on('alerteAlarme', function(message) {
+                console.log('ALARME');
+                $('#textModal').text(message);
+                $('#myModal').modal("show"); 
+            });
+            socket.on('vab', function(message) {
+                gaugeVAB.refresh(parseFloat(message));
+            });
+            socket.on('vbn', function(message) {
+                gaugeVBN.refresh(parseFloat(message));
+            });
+            socket.on('van', function(message) {
+                gaugeVAN.refresh(parseFloat(message));
+            });
+            socket.on('ia', function(message) {
+                gaugeIA.refresh(parseFloat(message));
+            });
+            socket.on('ib', function(message) {
+                gaugeIB.refresh(parseFloat(message));
+            });
+            socket.on('kw', function(message) {
+                gaugeKW.refresh(parseFloat(message));
+            });
+            socket.on('kwh', function(message) {
+                gaugeKWH.refresh(parseFloat(message));
+            });
+            socket.on('fp', function(message) {
+                gaugeFP.refresh(parseFloat(message));
+            }); 
+        </script> 
+    </body>
+</html>
