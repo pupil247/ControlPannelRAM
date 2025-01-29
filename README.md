@@ -2,6 +2,12 @@
 
 This web application is built using Node.js and npm to control an industrial panel via MQTT. It provides real-time monitoring, user authentication, alarm management, and peripheral control. The system integrates Socket.io for MQTT communication and includes SQL-based user management with role-based permissions. It is part of a larger project including the Industrial pannel control with raspberry PI in Linux.
 
+<p float="left">
+  <img src="Images/controle.png" width="250" />
+  <img src="configAlarme.png" width="250" />
+  <img src="journal" width="250" />
+</p>
+
 🚀 Features
 
 🔹 User Authentication & Management
